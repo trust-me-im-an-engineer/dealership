@@ -12,8 +12,10 @@ VALUES ('Lada Vesta', 2025),
        ('Geely Coolray', 2025);
 
 INSERT INTO car_configuration (name, car_model, price, delivery_days, description)
-VALUES ('Comfort', 'Lada Vesta', 1500000.00, 14, 'Базовая комплектация'),
-       ('Techno', 'Lada Vesta', 1800000.00, 21, 'Расширенная комплектация'),
+VALUES ('Basic', 'Lada Vesta', 1500000.00, 14, 'Базовая комплектация'),
+       ('Comfort', 'Lada Vesta', 1800000.00, 21, 'Расширенная комплектация'),
+       ('Flagship', 'Lada Vesta', 2100000.00, 28, 'Максимальная комплектация'),
+       ('Basic', 'Geely Coolray', 2300000.00, 21, 'Базовая комплектация'),
        ('Flagship', 'Geely Coolray', 2700000.00, 30, 'Максимальная комплектация');
 
 -- Заказ в работе и уже доставленный автомобиль.
@@ -22,7 +24,7 @@ INSERT INTO "order" (car_configuration_id, seller_id, buyer_name, buyer_phone, b
 SELECT c.id, u.id, 'Иван Петров', '+7 900 000-00-01', 'ivan@example.com',
        CURRENT_DATE + c.delivery_days, 'placed'
 FROM car_configuration AS c CROSS JOIN "user" AS u
-WHERE c.car_model = 'Lada Vesta' AND c.name = 'Comfort' AND u.username = 'seller';
+WHERE c.car_model = 'Lada Vesta' AND c.name = 'Basic' AND u.username = 'seller';
 
 INSERT INTO "order" (car_configuration_id, seller_id, buyer_name, buyer_phone, buyer_email,
                      ordered_at, expected_delivery_on, status)
