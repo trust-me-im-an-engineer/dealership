@@ -16,3 +16,23 @@
 - [sqlc](https://docs.sqlc.dev/en/latest/overview/install.html);
 - [golangci-lint](https://golangci-lint.run/docs/welcome/install/local/);
 - [PostgreSQL](https://www.postgresql.org/download/) — локально или на доступном сервере.
+
+## Порядок запуска
+
+Все команды выполняются из корня репозитория. В качестве агрегатора команд используется `just` (современный аналог make).
+
+При первом запуске:
+1. Создайте `.env` по образцу `.env.example` и задайте пароль PostgreSQL в
+   `PGPASSWORD`. Значения `PGUSER` и `PGDATABASE` определяют имя создаваемых
+   пользователя и базы данных.
+2. Запустите службу PostgreSQL.
+3. Создайте пользователя и базу командой `just db-init`.
+4. Примените схему командой `just migrate-up`.
+5. Загрузите тестовые данные командой `just db-seed`. Для входа используйте
+   `admin` или `seller` с паролем `password`.
+6. Запустите приложение командой `just run` и откройте
+   <http://localhost:8080/login> (или адрес из `HTTP_ADDRESS`).
+
+При последующих запусках достаточно запустить PostgreSQL и выполнить
+`just run`. Повторно выполнять `db-init` и `db-seed` не нужно. Новые миграции
+применяются командой `just migrate-up`.
