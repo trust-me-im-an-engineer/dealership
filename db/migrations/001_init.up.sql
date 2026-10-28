@@ -1,5 +1,7 @@
+-- Возможные состояния заказа автомобиля.
 CREATE TYPE order_status AS ENUM ('placed', 'delivered', 'cancelled');
 
+-- Учётные записи пользователей.
 CREATE TABLE "user"
 (
     id            BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -8,12 +10,14 @@ CREATE TABLE "user"
     password_hash TEXT NOT NULL
 );
 
+-- Модель автомобиля и год её выпуска.
 CREATE TABLE car_model
 (
     name TEXT PRIMARY KEY,
     year INT NOT NULL
 );
 
+-- Доступные комплектации с ценой и сроком поставки.
 CREATE TABLE car_configuration
 (
     id            BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -24,6 +28,7 @@ CREATE TABLE car_configuration
     description   TEXT
 );
 
+-- Заказы покупателей, оформленные продавцами.
 CREATE TABLE "order"
 (
     id                   BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

@@ -1,0 +1,9 @@
+{{define "title"}}Автосалон{{end}}
+
+{{define "main"}}
+<h1>Здравствуйте, {{.Username}}</h1>
+<p>Вы вошли в систему. Роль: {{if eq .Role "admin"}}администратор{{else}}продавец{{end}}.</p>
+<form method="post" action="/logout">
+    <button type="submit">Выйти</button>
+</form>
+{{end}}

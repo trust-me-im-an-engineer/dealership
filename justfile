@@ -35,6 +35,10 @@ migrate-up:
 migrate-down:
     migrate -path db/migrations -database 'postgres://@' down 1
 
+# Заполнить базу тестовыми данными (один раз после миграций)
+db-seed:
+    psql -X -1 -v ON_ERROR_STOP=1 -f db/seed.sql
+
 # Форматировать код
 fmt:
     golangci-lint fmt ./...
