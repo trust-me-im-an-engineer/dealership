@@ -22,7 +22,7 @@ CREATE TABLE car_configuration
 (
     id            BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name          TEXT           NOT NULL,
-    car_model     TEXT           NOT NULL REFERENCES car_model (name),
+    car_model     TEXT           NOT NULL REFERENCES car_model (name) ON UPDATE CASCADE ON DELETE CASCADE,
     price         NUMERIC(12, 2) NOT NULL CHECK (price > 0),
     delivery_days INT            NOT NULL CHECK (delivery_days >= 0),
     description   TEXT

@@ -1,20 +1,22 @@
 <!doctype html>
-<html lang="ru">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ru" style="--pico-font-size: 100%">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{template "title" .}}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css">
-</head>
+    <script src="/static/js/htmx.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css"
+    />
+  </head>
 
-<body>
+  <body hx-on::response-error="alert(event.detail.xhr.responseText.trim())">
     <main class="container">
-        <article>
-            <header>Автосалон</header>
-            {{template "main" .}}
-        </article>
+      <article style="{{block "article-style" .}}{{end}}">
+        <header>Автосалон</header>
+        {{template "main" .}}
+      </article>
     </main>
-</body>
-
+  </body>
 </html>

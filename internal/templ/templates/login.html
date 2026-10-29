@@ -1,16 +1,30 @@
-{{define "title"}}Вход — Автосалон{{end}}
-
-{{define "main"}}
+{{define "title"}}Вход — Автосалон{{end}} {{define "article-style"}}max-width:
+36rem; margin-inline: auto{{end}} {{define "main"}}
 <h1>Вход в систему</h1>
 <p>Войдите с учётной записью администратора или продавца.</p>
-{{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
+{{if .Error}}
+<p role="alert">{{.Error}}</p>
+{{end}}
 <form method="post" action="/login">
-    <label for="username">Имя пользователя</label>
-    <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+  <label for="username">Имя пользователя</label>
+  <input
+    id="username"
+    name="username"
+    type="text"
+    autocomplete="username"
+    required
+    autofocus
+  />
 
-    <label for="password">Пароль</label>
-    <input id="password" name="password" type="password" autocomplete="current-password" required>
+  <label for="password">Пароль</label>
+  <input
+    id="password"
+    name="password"
+    type="password"
+    autocomplete="current-password"
+    required
+  />
 
-    <button type="submit">Войти</button>
+  <button type="submit">Войти</button>
 </form>
 {{end}}

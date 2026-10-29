@@ -1,0 +1,54 @@
+{{define "model-editor-row"}}
+<tr>
+  <td>
+    <input
+      form="{{.FormID}}"
+      name="name"
+      aria-label="Название модели"
+      value="{{.Name}}"
+      required
+    />
+  </td>
+  <td>
+    <input
+      form="{{.FormID}}"
+      name="year"
+      aria-label="Год выпуска"
+      type="number"
+      min="1"
+      max="9999"
+      value="{{.Year}}"
+      required
+    />
+  </td>
+  <td>
+    <form
+      id="{{.FormID}}"
+      method="post"
+      action="{{.Action}}"
+      hx-post="{{.Action}}"
+      hx-swap="none"
+    >
+      {{if .IsEdit}}<input
+        type="hidden"
+        name="old_name"
+        value="{{.OldName}}"
+      />{{end}}
+      <button>{{if .IsEdit}}Сохранить{{else}}Добавить{{end}}</button>
+    </form>
+  </td>
+  <td>
+    {{if .IsEdit}}
+    <button
+      type="button"
+      class="secondary"
+      hx-get="/admin/models/row?name={{.OldName | urlquery}}"
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+    >
+      Отмена
+    </button>
+    {{end}}
+  </td>
+</tr>
+{{end}}

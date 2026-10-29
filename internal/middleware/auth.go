@@ -20,9 +20,23 @@ func New(sessions *scs.SessionManager) *Middleware {
 
 // Auth пропускает запрос только при наличии данных вошедшего пользователя в сессии.
 func (m *Middleware) Auth(next http.Handler) http.Handler {
+	return m.checkAccess(next, "")
+}
+
+// Admin разрешает доступ только администратору.
+func (m *Middleware) Admin(next http.Handler) http.Handler {
+	return m.checkAccess(next, "admin")
+}
+
+func (m *Middleware) checkAccess(next http.Handler, role string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if _, ok := m.sessions.Get(r.Context(), session.UserKey).(session.User); !ok {
+		user, ok := m.sessions.Get(r.Context(), session.UserKey).(session.User)
+		if !ok {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		if role != "" && user.Role != role {
+			http.Error(w, "Доступ запрещён", http.StatusForbidden)
 			return
 		}
 		next.ServeHTTP(w, r)

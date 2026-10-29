@@ -1,0 +1,27 @@
+{{define "model-row"}}
+<tr>
+  <td>{{.Name}}</td>
+  <td>{{.Year}}</td>
+  <td>
+    <button
+      type="button"
+      hx-get="/admin/models/edit?name={{.Name | urlquery}}"
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+    >
+      Изменить
+    </button>
+  </td>
+  <td>
+    <form
+      method="post"
+      action="/admin/models/delete"
+      hx-post="/admin/models/delete"
+      hx-swap="none"
+    >
+      <input type="hidden" name="name" value="{{.Name}}" />
+      <button class="secondary">Удалить</button>
+    </form>
+  </td>
+</tr>
+{{end}}

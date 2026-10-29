@@ -40,7 +40,7 @@ func (h *Handlers) PostLogin(w http.ResponseWriter, r *http.Request) {
 	password := r.PostFormValue("password")
 
 	// Для отсутствующего пользователя и неверного пароля возвращается одинаковая ошибка.
-	user, err := h.userRepository.GetUserByUsername(r.Context(), username)
+	user, err := h.queries.GetUserByUsername(r.Context(), username)
 	if errors.Is(err, pgx.ErrNoRows) ||
 		err == nil && bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
 		h.render(

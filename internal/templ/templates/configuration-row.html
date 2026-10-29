@@ -1,0 +1,30 @@
+{{define "configuration-row"}}
+<tr>
+  <td>{{.CarModel}}</td>
+  <td>{{.Name}}</td>
+  <td>{{.Price}}</td>
+  <td>{{.DeliveryDays}}</td>
+  <td>{{if .Description}}{{.Description}}{{end}}</td>
+  <td>
+    <button
+      type="button"
+      hx-get="/admin/configurations/edit?id={{.ID}}"
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+    >
+      Изменить
+    </button>
+  </td>
+  <td>
+    <form
+      method="post"
+      action="/admin/configurations/delete"
+      hx-post="/admin/configurations/delete"
+      hx-swap="none"
+    >
+      <input type="hidden" name="id" value="{{.ID}}" />
+      <button class="secondary">Удалить</button>
+    </form>
+  </td>
+</tr>
+{{end}}
