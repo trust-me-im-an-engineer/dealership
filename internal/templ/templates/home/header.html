@@ -1,0 +1,17 @@
+{{ define "header" }}
+  <nav aria-label="Учетная запись">
+    <ul>
+      <li>
+        <h1>Здравствуйте, {{ .Username }}</h1>
+        <p>Вы вошли в систему. Роль: {{ .RoleName }}.</p>
+      </li>
+    </ul>
+    <ul>
+      <li>
+        <form method="post" action="/logout">
+          <button>Выйти</button>
+        </form>
+      </li>
+    </ul>
+  </nav>
+{{ end }}

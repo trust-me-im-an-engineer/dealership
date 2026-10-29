@@ -8,7 +8,7 @@ import (
 
 // Шаблоны встраиваются в исполняемый файл, чтобы сервер не зависел от рабочей директории.
 //
-//go:embed templates/*.html static/js/*.js
+//go:embed templates/*.html templates/home/*.html static/js/*.js
 var files embed.FS
 
 // Static возвращает встроенные файлы JavaScript для HTTP-сервера.

@@ -33,11 +33,13 @@ func (h *Handlers) GetEditModel(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
+
 	name := r.URL.Query().Get("name")
 	if name == "" {
 		http.Error(w, "Укажите модель", http.StatusBadRequest)
 		return
 	}
+
 	model, err := h.queries.GetCarModel(r.Context(), name)
 	if errors.Is(err, pgx.ErrNoRows) {
 		http.NotFound(w, r)
@@ -47,10 +49,14 @@ func (h *Handlers) GetEditModel(w http.ResponseWriter, r *http.Request) {
 		catalogServerError(w, "failed to get car model", err)
 		return
 	}
+
 	page := modelFormPage{
-		Action: "/admin/models/update", IsEdit: true,
-		FormID:  "model-edit-" + url.QueryEscape(model.Name),
-		OldName: model.Name, Name: model.Name, Year: strconv.FormatInt(int64(model.Year), 10),
+		Action:     "/admin/models/update",
+		IsEdit:     true,
+		FormID:     "model-edit-" + url.QueryEscape(model.Name),
+		OldName:    model.Name,
+		Name:       model.Name,
+		Year:       strconv.FormatInt(int64(model.Year), 10),
 		OrderCount: model.OrderCount,
 	}
 	h.renderFragment(w, tmplModelEditorRow, "model-editor-row", page, http.StatusOK)
@@ -62,6 +68,7 @@ func (h *Handlers) GetModelRow(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
+
 	model, err := h.queries.GetCarModel(r.Context(), r.URL.Query().Get("name"))
 	if errors.Is(err, pgx.ErrNoRows) {
 		http.NotFound(w, r)
@@ -71,6 +78,7 @@ func (h *Handlers) GetModelRow(w http.ResponseWriter, r *http.Request) {
 		catalogServerError(w, "failed to get car model", err)
 		return
 	}
+
 	h.renderFragment(w, tmplModelRow, "model-row", model, http.StatusOK)
 }
 
@@ -79,6 +87,7 @@ func parseModelForm(r *http.Request, page *modelFormPage) (db.CreateCarModelPara
 		page.Error = "Некорректная форма"
 		return db.CreateCarModelParams{}, false
 	}
+
 	page.Name = strings.TrimSpace(r.PostFormValue("name"))
 	page.Year = r.PostFormValue("year")
 	page.OldName = r.PostFormValue("old_name")
@@ -87,6 +96,7 @@ func parseModelForm(r *http.Request, page *modelFormPage) (db.CreateCarModelPara
 		page.Error = "Введите название и год от 1 до 9999"
 		return db.CreateCarModelParams{}, false
 	}
+
 	return db.CreateCarModelParams{Name: page.Name, Year: int32(year)}, true
 }
 
@@ -98,14 +108,17 @@ func (h *Handlers) PostModel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, page.Error, http.StatusBadRequest)
 		return
 	}
+
 	if err := h.queries.CreateCarModel(r.Context(), input); err != nil {
 		if postgresError(err, "23505") {
 			http.Error(w, "Модель с таким названием уже существует", http.StatusConflict)
 			return
 		}
+
 		catalogServerError(w, "failed to create car model", err)
 		return
 	}
+
 	catalogSuccess(w, r)
 }
 
@@ -117,13 +130,18 @@ func (h *Handlers) PostUpdateModel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, page.Error, http.StatusBadRequest)
 		return
 	}
+
 	if page.OldName == "" {
 		http.Error(w, "Укажите исходную модель", http.StatusBadRequest)
 		return
 	}
-	rows, err := h.queries.UpdateCarModel(r.Context(), db.UpdateCarModelParams{
-		OldName: page.OldName, NewName: input.Name, Year: input.Year,
-	})
+
+	params := db.UpdateCarModelParams{
+		OldName: page.OldName,
+		NewName: input.Name,
+		Year:    input.Year,
+	}
+	rows, err := h.queries.UpdateCarModel(r.Context(), params)
 	if postgresError(err, "23505") {
 		http.Error(w, "Модель с таким названием уже существует", http.StatusConflict)
 		return
@@ -132,10 +150,12 @@ func (h *Handlers) PostUpdateModel(w http.ResponseWriter, r *http.Request) {
 		catalogServerError(w, "failed to update car model", err)
 		return
 	}
+
 	if rows == 0 {
 		http.NotFound(w, r)
 		return
 	}
+
 	catalogSuccess(w, r)
 }
 
@@ -145,11 +165,13 @@ func (h *Handlers) PostDeleteModel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Некорректная форма", http.StatusBadRequest)
 		return
 	}
+
 	name := r.PostFormValue("name")
 	if name == "" {
 		http.Error(w, "Укажите модель", http.StatusBadRequest)
 		return
 	}
+
 	rows, err := h.queries.DeleteCarModel(r.Context(), name)
 	if postgresError(err, "23503") {
 		http.Error(w, "Нельзя удалить модель: для её комплектаций есть заказы", http.StatusConflict)
@@ -159,9 +181,11 @@ func (h *Handlers) PostDeleteModel(w http.ResponseWriter, r *http.Request) {
 		catalogServerError(w, "failed to delete car model", err)
 		return
 	}
+
 	if rows == 0 {
 		http.NotFound(w, r)
 		return
 	}
+
 	catalogSuccess(w, r)
 }

@@ -13,9 +13,9 @@ func postgresError(err error, code string) bool {
 	return errors.As(err, &pgErr) && pgErr.Code == code
 }
 
-func catalogServerError(w http.ResponseWriter, message string, err error) {
+func catalogServerError(w http.ResponseWriter, msg string, err error) {
 	slog.Error(
-		message,
+		msg,
 		slog.Any("error", err),
 	)
 	http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
