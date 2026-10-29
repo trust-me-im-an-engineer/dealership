@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log/slog"
 	"net/http"
 
 	"dealership/internal/db"
@@ -29,11 +28,21 @@ var tmplAdminHome = templ.Parse(
 
 // adminHome показывает администратору каталог и все заказы.
 func (h *Handlers) adminHome(w http.ResponseWriter, r *http.Request, user session.User) {
+	home, err := h.loadHomePage(r.Context(), user, "администратор")
+	if err != nil {
+		serverError(w, "failed to load admin home page", err)
+		return
+	}
+
+	orders, err := h.queries.ListOrders(r.Context())
+	if err != nil {
+		serverError(w, "failed to list orders", err)
+		return
+	}
+
 	data := adminHomePage{
-		homePage: homePage{
-			Username: user.Username,
-			RoleName: "администратор",
-		},
+		homePage: home,
+		Orders:   orders,
 		NewModel: modelFormPage{
 			catalogFormPage: catalogFormPage{
 				Action: "/admin/models",
@@ -45,32 +54,9 @@ func (h *Handlers) adminHome(w http.ResponseWriter, r *http.Request, user sessio
 				Action: "/admin/configurations",
 				FormID: "configuration-create",
 			},
+			Models: home.Models,
 		},
 	}
 
-	var err error
-
-	data.Models, err = h.queries.ListCarModels(r.Context())
-	if err != nil {
-		slog.Error("failed to list car models", slog.Any("error", err))
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
-	}
-
-	data.Configurations, err = h.queries.ListCarConfigurations(r.Context())
-	if err != nil {
-		slog.Error("failed to list car configurations", slog.Any("error", err))
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
-	}
-
-	data.Orders, err = h.queries.ListOrders(r.Context())
-	if err != nil {
-		slog.Error("failed to list orders", slog.Any("error", err))
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
-	}
-
-	data.NewConfiguration.Models = data.Models
 	h.render(w, tmplAdminHome, data, http.StatusOK)
 }

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"dealership/internal/db"
@@ -13,6 +15,26 @@ type homePage struct {
 	RoleName       string
 	Models         []db.ListCarModelsRow
 	Configurations []db.ListCarConfigurationsRow
+}
+
+// loadHomePage загружает общие данные главной страницы и указывает в ошибке неудавшийся запрос.
+func (h *Handlers) loadHomePage(ctx context.Context, user session.User, roleName string) (homePage, error) {
+	models, err := h.queries.ListCarModels(ctx)
+	if err != nil {
+		return homePage{}, fmt.Errorf("failed to list car models: %w", err)
+	}
+
+	configurations, err := h.queries.ListCarConfigurations(ctx)
+	if err != nil {
+		return homePage{}, fmt.Errorf("failed to list car configurations: %w", err)
+	}
+
+	return homePage{
+		Username:       user.Username,
+		RoleName:       roleName,
+		Models:         models,
+		Configurations: configurations,
+	}, nil
 }
 
 // Home направляет вошедшего пользователя на главную страницу его роли.
