@@ -48,7 +48,7 @@ func (h *Handlers) GetEditModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to get car model", err)
+		serverError(w, "failed to get car model", err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func (h *Handlers) GetModelRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to get car model", err)
+		serverError(w, "failed to get car model", err)
 		return
 	}
 
@@ -118,11 +118,11 @@ func (h *Handlers) PostModel(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		catalogServerError(w, "failed to create car model", err)
+		serverError(w, "failed to create car model", err)
 		return
 	}
 
-	catalogSuccess(w, r)
+	mutationSuccess(w, r)
 }
 
 // PostUpdateModel сохраняет новое название и год модели.
@@ -150,7 +150,7 @@ func (h *Handlers) PostUpdateModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to update car model", err)
+		serverError(w, "failed to update car model", err)
 		return
 	}
 
@@ -159,7 +159,7 @@ func (h *Handlers) PostUpdateModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catalogSuccess(w, r)
+	mutationSuccess(w, r)
 }
 
 // PostDeleteModel удаляет модель и её комплектации, если для них нет заказов.
@@ -181,7 +181,7 @@ func (h *Handlers) PostDeleteModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to delete car model", err)
+		serverError(w, "failed to delete car model", err)
 		return
 	}
 
@@ -190,5 +190,5 @@ func (h *Handlers) PostDeleteModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catalogSuccess(w, r)
+	mutationSuccess(w, r)
 }

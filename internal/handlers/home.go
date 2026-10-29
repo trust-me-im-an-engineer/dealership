@@ -13,7 +13,7 @@ func (h *Handlers) Home(w http.ResponseWriter, r *http.Request) {
 	case "admin":
 		h.adminHome(w, r, user)
 	case "seller":
-		h.sellerHome(w, user)
+		h.sellerHome(w, r, user)
 	default:
 		http.Error(w, "Доступ запрещён", http.StatusForbidden)
 	}

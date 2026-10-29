@@ -1,0 +1,28 @@
+{{ define "seller-order-row" }}
+  <tr>
+    <td>{{ .ID }}</td>
+    <td>{{ .OrderedAt }}</td>
+    <td>{{ .CarModel }}</td>
+    <td>{{ .ConfigurationName }}</td>
+    <td>
+      {{ .BuyerName }}<br />
+      {{ .BuyerPhone }}
+      {{ if .BuyerEmail }}<br />{{ .BuyerEmail }}{{ end }}
+    </td>
+    <td>{{ .ExpectedDeliveryOn }}</td>
+    <td>{{ .Status }}</td>
+    <td>
+      <form
+        method="get"
+        action="/seller/orders/edit"
+        hx-get="/seller/orders/edit"
+        hx-target="closest tr"
+        hx-swap="outerHTML"
+      >
+        <input type="hidden" name="id" value="{{ .ID }}" />
+        <button>Изменить</button>
+      </form>
+    </td>
+    <td></td>
+  </tr>
+{{ end }}

@@ -1,4 +1,89 @@
 {{ define "title" }}Автосалон{{ end }}
 {{ define "main" }}
   {{ template "header" . }}
+  <section>
+    <h2>Заказы</h2>
+    <table style="width: auto">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Дата заказа</th>
+          <th>Модель</th>
+          <th>Комплектация</th>
+          <th>Покупатель</th>
+          <th>Ожидаемая доставка</th>
+          <th>Статус</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Orders }}
+          {{ template "seller-order-row" . }}
+        {{ else }}
+          <tr>
+            <td colspan="9">Заказов пока нет.</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Модели автомобилей</h2>
+    <table style="width: auto">
+      <thead>
+        <tr>
+          <th>Модель</th>
+          <th>Год</th>
+          <th>Заказы</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Models }}
+          <tr>
+            <td>{{ .Name }}</td>
+            <td>{{ .Year }}</td>
+            <td>{{ .OrderCount }}</td>
+          </tr>
+        {{ else }}
+          <tr>
+            <td colspan="3">Моделей пока нет.</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Комплектации</h2>
+    <table style="width: auto">
+      <thead>
+        <tr>
+          <th>Модель</th>
+          <th>Комплектация</th>
+          <th>Цена, ₽</th>
+          <th>Поставка, дней</th>
+          <th>Описание</th>
+          <th>Заказы</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Configurations }}
+          <tr>
+            <td>{{ .CarModel }}</td>
+            <td>{{ .Name }}</td>
+            <td>{{ .Price }}</td>
+            <td>{{ .DeliveryDays }}</td>
+            <td>{{ if .Description }}{{ .Description }}{{ end }}</td>
+            <td>{{ .OrderCount }}</td>
+          </tr>
+        {{ else }}
+          <tr>
+            <td colspan="6">Комплектаций пока нет.</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </section>
 {{ end }}

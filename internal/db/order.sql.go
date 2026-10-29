@@ -7,7 +7,72 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const getSellerOrder = `-- name: GetSellerOrder :one
+SELECT o.id,
+       TO_CHAR(o.ordered_at, 'DD.MM.YYYY HH24:MI') AS ordered_at,
+       c.car_model,
+       c.name AS configuration_name,
+       o.car_configuration_id,
+       o.buyer_name,
+       o.buyer_phone,
+       o.buyer_email,
+       TO_CHAR(o.expected_delivery_on, 'DD.MM.YYYY') AS expected_delivery_on,
+       TO_CHAR(o.expected_delivery_on, 'YYYY-MM-DD') AS expected_delivery_on_input,
+       CASE o.status
+           WHEN 'placed' THEN 'Оформлен'
+           WHEN 'delivered' THEN 'Доставлен'
+           WHEN 'cancelled' THEN 'Отменён'
+       END::TEXT AS status,
+       o.status::TEXT AS status_value
+FROM "order" o
+JOIN car_configuration c ON c.id = o.car_configuration_id
+WHERE o.id = $1 AND o.seller_id = $2
+`
+
+type GetSellerOrderParams struct {
+	ID       int64
+	SellerID int64
+}
+
+type GetSellerOrderRow struct {
+	ID                      int64
+	OrderedAt               string
+	CarModel                string
+	ConfigurationName       string
+	CarConfigurationID      int64
+	BuyerName               string
+	BuyerPhone              string
+	BuyerEmail              *string
+	ExpectedDeliveryOn      string
+	ExpectedDeliveryOnInput string
+	Status                  string
+	StatusValue             string
+}
+
+// Заказ текущего продавца для заполнения строки редактирования.
+func (q *Queries) GetSellerOrder(ctx context.Context, arg GetSellerOrderParams) (GetSellerOrderRow, error) {
+	row := q.db.QueryRow(ctx, getSellerOrder, arg.ID, arg.SellerID)
+	var i GetSellerOrderRow
+	err := row.Scan(
+		&i.ID,
+		&i.OrderedAt,
+		&i.CarModel,
+		&i.ConfigurationName,
+		&i.CarConfigurationID,
+		&i.BuyerName,
+		&i.BuyerPhone,
+		&i.BuyerEmail,
+		&i.ExpectedDeliveryOn,
+		&i.ExpectedDeliveryOnInput,
+		&i.Status,
+		&i.StatusValue,
+	)
+	return i, err
+}
 
 const listOrders = `-- name: ListOrders :many
 SELECT o.id,
@@ -73,4 +138,107 @@ func (q *Queries) ListOrders(ctx context.Context) ([]ListOrdersRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const listSellerOrders = `-- name: ListSellerOrders :many
+SELECT o.id,
+       TO_CHAR(o.ordered_at, 'DD.MM.YYYY HH24:MI') AS ordered_at,
+       c.car_model,
+       c.name AS configuration_name,
+       o.buyer_name,
+       o.buyer_phone,
+       o.buyer_email,
+       TO_CHAR(o.expected_delivery_on, 'DD.MM.YYYY') AS expected_delivery_on,
+       CASE o.status
+           WHEN 'placed' THEN 'Оформлен'
+           WHEN 'delivered' THEN 'Доставлен'
+           WHEN 'cancelled' THEN 'Отменён'
+       END::TEXT AS status
+FROM "order" o
+JOIN car_configuration c ON c.id = o.car_configuration_id
+WHERE o.seller_id = $1
+ORDER BY o.ordered_at DESC, o.id DESC
+`
+
+type ListSellerOrdersRow struct {
+	ID                 int64
+	OrderedAt          string
+	CarModel           string
+	ConfigurationName  string
+	BuyerName          string
+	BuyerPhone         string
+	BuyerEmail         *string
+	ExpectedDeliveryOn string
+	Status             string
+}
+
+// Заказы текущего продавца для главной страницы.
+func (q *Queries) ListSellerOrders(ctx context.Context, sellerID int64) ([]ListSellerOrdersRow, error) {
+	rows, err := q.db.Query(ctx, listSellerOrders, sellerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSellerOrdersRow
+	for rows.Next() {
+		var i ListSellerOrdersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrderedAt,
+			&i.CarModel,
+			&i.ConfigurationName,
+			&i.BuyerName,
+			&i.BuyerPhone,
+			&i.BuyerEmail,
+			&i.ExpectedDeliveryOn,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateSellerOrder = `-- name: UpdateSellerOrder :execrows
+UPDATE "order"
+SET car_configuration_id = $1,
+    buyer_name = $2,
+    buyer_phone = $3,
+    buyer_email = $4,
+    expected_delivery_on = $5::DATE,
+    status = $6::order_status
+WHERE id = $7 AND seller_id = $8
+`
+
+type UpdateSellerOrderParams struct {
+	CarConfigurationID int64
+	BuyerName          string
+	BuyerPhone         string
+	BuyerEmail         *string
+	ExpectedDeliveryOn pgtype.Date
+	Status             OrderStatus
+	ID                 int64
+	SellerID           int64
+}
+
+// Сохранять изменения может только продавец, оформивший заказ.
+func (q *Queries) UpdateSellerOrder(ctx context.Context, arg UpdateSellerOrderParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateSellerOrder,
+		arg.CarConfigurationID,
+		arg.BuyerName,
+		arg.BuyerPhone,
+		arg.BuyerEmail,
+		arg.ExpectedDeliveryOn,
+		arg.Status,
+		arg.ID,
+		arg.SellerID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

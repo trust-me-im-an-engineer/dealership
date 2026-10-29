@@ -14,8 +14,8 @@ func postgresError(err error, code string) bool {
 	return errors.As(err, &pgErr) && pgErr.Code == code
 }
 
-// catalogServerError записывает внутреннюю ошибку в журнал и скрывает её детали от пользователя.
-func catalogServerError(w http.ResponseWriter, msg string, err error) {
+// serverError записывает внутреннюю ошибку в журнал и скрывает её детали от пользователя.
+func serverError(w http.ResponseWriter, msg string, err error) {
 	slog.Error(
 		msg,
 		slog.Any("error", err),
@@ -23,8 +23,8 @@ func catalogServerError(w http.ResponseWriter, msg string, err error) {
 	http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 }
 
-// После изменения каталога htmx обновляет текущую страницу; обычная форма переходит на главную.
-func catalogSuccess(w http.ResponseWriter, r *http.Request) {
+// После изменения данных htmx обновляет текущую страницу; обычная форма переходит на главную.
+func mutationSuccess(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("HX-Request") == "true" {
 		w.Header().Set("HX-Refresh", "true")
 		w.WriteHeader(http.StatusOK)

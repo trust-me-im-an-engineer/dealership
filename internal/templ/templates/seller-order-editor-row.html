@@ -1,0 +1,108 @@
+{{ define "seller-order-editor-row" }}
+  <tr>
+    <td>{{ .ID }}</td>
+    <td>{{ .OrderedAt }}</td>
+    <td colspan="2">
+      <select
+        form="order-edit-{{ .ID }}"
+        name="car_configuration_id"
+        aria-label="Комплектация"
+        required
+      >
+        {{ range .Configurations }}
+          <option
+            value="{{ .ID }}"
+            {{ if eq .ID $.CarConfigurationID }}selected{{ end }}
+          >
+            {{ .CarModel }} —
+            {{ .Name }}
+          </option>
+        {{ end }}
+      </select>
+    </td>
+    <td>
+      <input
+        form="order-edit-{{ .ID }}"
+        name="buyer_name"
+        aria-label="Имя покупателя"
+        value="{{ .BuyerName }}"
+        required
+      />
+      <input
+        form="order-edit-{{ .ID }}"
+        name="buyer_phone"
+        aria-label="Телефон покупателя"
+        value="{{ .BuyerPhone }}"
+        required
+      />
+      <input
+        form="order-edit-{{ .ID }}"
+        name="buyer_email"
+        type="email"
+        aria-label="Электронная почта покупателя"
+        value="{{ if .BuyerEmail }}{{ .BuyerEmail }}{{ end }}"
+      />
+    </td>
+    <td>
+      <input
+        form="order-edit-{{ .ID }}"
+        name="expected_delivery_on"
+        type="date"
+        aria-label="Ожидаемая доставка"
+        value="{{ .ExpectedDeliveryOnInput }}"
+        required
+      />
+    </td>
+    <td>
+      <select
+        form="order-edit-{{ .ID }}"
+        name="status"
+        aria-label="Статус заказа"
+        required
+      >
+        <option
+          value="placed"
+          {{ if eq .StatusValue "placed" }}selected{{ end }}
+        >
+          Оформлен
+        </option>
+        <option
+          value="delivered"
+          {{ if eq .StatusValue "delivered" }}selected{{ end }}
+        >
+          Доставлен
+        </option>
+        <option
+          value="cancelled"
+          {{ if eq .StatusValue "cancelled" }}selected{{ end }}
+        >
+          Отменён
+        </option>
+      </select>
+    </td>
+    <td>
+      <form
+        id="order-edit-{{ .ID }}"
+        method="post"
+        action="/seller/orders/update"
+        hx-post="/seller/orders/update"
+        hx-swap="none"
+      >
+        <input type="hidden" name="id" value="{{ .ID }}" />
+        <button>Сохранить</button>
+      </form>
+    </td>
+    <td>
+      <form
+        method="get"
+        action="/seller/orders/row"
+        hx-get="/seller/orders/row"
+        hx-target="closest tr"
+        hx-swap="outerHTML"
+      >
+        <input type="hidden" name="id" value="{{ .ID }}" />
+        <button class="secondary">Отмена</button>
+      </form>
+    </td>
+  </tr>
+{{ end }}

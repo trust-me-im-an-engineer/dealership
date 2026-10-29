@@ -63,7 +63,7 @@ func (h *Handlers) GetEditConfiguration(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to get car configuration", err)
+		serverError(w, "failed to get car configuration", err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (h *Handlers) GetEditConfiguration(w http.ResponseWriter, r *http.Request) 
 
 	models, err := h.queries.ListCarModels(r.Context())
 	if err != nil {
-		catalogServerError(w, "failed to list car models", err)
+		serverError(w, "failed to list car models", err)
 		return
 	}
 
@@ -111,7 +111,7 @@ func (h *Handlers) GetConfigurationRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to get car configuration", err)
+		serverError(w, "failed to get car configuration", err)
 		return
 	}
 
@@ -166,11 +166,11 @@ func (h *Handlers) PostConfiguration(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Выбранная модель не существует", http.StatusConflict)
 			return
 		}
-		catalogServerError(w, "failed to create car configuration", err)
+		serverError(w, "failed to create car configuration", err)
 		return
 	}
 
-	catalogSuccess(w, r)
+	mutationSuccess(w, r)
 }
 
 // PostUpdateConfiguration сохраняет изменения комплектации.
@@ -196,7 +196,7 @@ func (h *Handlers) PostUpdateConfiguration(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to update car configuration", err)
+		serverError(w, "failed to update car configuration", err)
 		return
 	}
 	if rows == 0 {
@@ -204,7 +204,7 @@ func (h *Handlers) PostUpdateConfiguration(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	catalogSuccess(w, r)
+	mutationSuccess(w, r)
 }
 
 // PostDeleteConfiguration удаляет комплектацию, если для неё нет заказов.
@@ -226,7 +226,7 @@ func (h *Handlers) PostDeleteConfiguration(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if err != nil {
-		catalogServerError(w, "failed to delete car configuration", err)
+		serverError(w, "failed to delete car configuration", err)
 		return
 	}
 	if rows == 0 {
@@ -234,5 +234,5 @@ func (h *Handlers) PostDeleteConfiguration(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	catalogSuccess(w, r)
+	mutationSuccess(w, r)
 }

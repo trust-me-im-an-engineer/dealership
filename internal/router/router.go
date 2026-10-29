@@ -35,6 +35,11 @@ func Route(h *handlers.Handlers, m *middleware.Middleware, sessions *scs.Session
 	mux.Handle("POST /admin/configurations/update", m.Admin(http.HandlerFunc(h.PostUpdateConfiguration)))
 	mux.Handle("POST /admin/configurations/delete", m.Admin(http.HandlerFunc(h.PostDeleteConfiguration)))
 
+	// Продавец может менять только собственные заказы.
+	mux.Handle("GET /seller/orders/edit", m.Seller(http.HandlerFunc(h.GetEditSellerOrder)))
+	mux.Handle("GET /seller/orders/row", m.Seller(http.HandlerFunc(h.GetSellerOrderRow)))
+	mux.Handle("POST /seller/orders/update", m.Seller(http.HandlerFunc(h.PostUpdateSellerOrder)))
+
 	// Загрузка и сохранение сессии выполняются для каждого HTTP-запроса.
 	return sessions.LoadAndSave(mux)
 }

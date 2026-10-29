@@ -28,6 +28,11 @@ func (m *Middleware) Admin(next http.Handler) http.Handler {
 	return m.checkAccess(next, "admin")
 }
 
+// Seller разрешает доступ только продавцу.
+func (m *Middleware) Seller(next http.Handler) http.Handler {
+	return m.checkAccess(next, "seller")
+}
+
 // checkAccess требует сессию и, если роль задана, проверяет её перед вызовом обработчика.
 func (m *Middleware) checkAccess(next http.Handler, role string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
