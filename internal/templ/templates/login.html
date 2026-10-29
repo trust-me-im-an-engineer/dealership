@@ -4,7 +4,9 @@
   <h1>Вход в систему</h1>
   <p>Войдите с учётной записью администратора или продавца.</p>
   {{ if .Error }}
-    <p role="alert">{{ .Error }}</p>
+    <p role="alert">
+      <mark><strong>{{ .Error }}</strong></mark>
+    </p>
   {{ end }}
   <form method="post" action="/login">
     <label for="username">Имя пользователя</label>
