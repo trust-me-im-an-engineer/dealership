@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{template "title" .}}</title>
+    <title>{{ template "title" . }}</title>
     <script src="/static/js/htmx.min.js"></script>
     <link
       rel="stylesheet"
@@ -13,9 +13,9 @@
 
   <body hx-on::response-error="alert(event.detail.xhr.responseText.trim())">
     <main class="container">
-      <article style="{{block "article-style" .}}{{end}}">
+      <article style="{{ block "article-style" . }}{{ end }}">
         <header>Автосалон</header>
-        {{template "main" .}}
+        {{ template "main" . }}
       </article>
     </main>
   </body>

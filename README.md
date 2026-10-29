@@ -15,7 +15,10 @@
 - [golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate) с поддержкой PostgreSQL;
 - [sqlc](https://docs.sqlc.dev/en/latest/overview/install.html);
 - [golangci-lint](https://golangci-lint.run/docs/welcome/install/local/);
+- [Node.js и npm](https://nodejs.org/en/download) для форматирования HTML-шаблонов через Prettier;
 - [PostgreSQL](https://www.postgresql.org/download/) — локально или на доступном сервере.
+
+Перед запуском `just fmt` или `just lint` установите зависимости форматтера командой `npm ci`.
 
 ## Порядок запуска
 

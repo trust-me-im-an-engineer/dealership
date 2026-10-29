@@ -12,7 +12,7 @@ import (
 type homePage struct {
 	Username         string
 	Role             string
-	Models           []db.CarModel
+	Models           []db.ListCarModelsRow
 	Configurations   []db.ListCarConfigurationsRow
 	NewModel         modelFormPage
 	NewConfiguration configurationFormPage

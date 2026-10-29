@@ -75,8 +75,9 @@ func (q *Queries) DeleteCarModel(ctx context.Context, name string) (int64, error
 }
 
 const getCarConfiguration = `-- name: GetCarConfiguration :one
-SELECT id, name, car_model, price::TEXT AS price, delivery_days, description
-FROM car_configuration WHERE id = $1
+SELECT c.id, c.name, c.car_model, c.price::TEXT AS price, c.delivery_days, c.description,
+       (SELECT COUNT(*) FROM "order" o WHERE o.car_configuration_id = c.id) AS order_count
+FROM car_configuration c WHERE c.id = $1
 `
 
 type GetCarConfigurationRow struct {
@@ -86,6 +87,7 @@ type GetCarConfigurationRow struct {
 	Price        string
 	DeliveryDays int32
 	Description  *string
+	OrderCount   int64
 }
 
 func (q *Queries) GetCarConfiguration(ctx context.Context, id int64) (GetCarConfigurationRow, error) {
@@ -98,24 +100,37 @@ func (q *Queries) GetCarConfiguration(ctx context.Context, id int64) (GetCarConf
 		&i.Price,
 		&i.DeliveryDays,
 		&i.Description,
+		&i.OrderCount,
 	)
 	return i, err
 }
 
 const getCarModel = `-- name: GetCarModel :one
-SELECT name, year FROM car_model WHERE name = $1
+SELECT m.name, m.year,
+       (SELECT COUNT(*)
+        FROM car_configuration c
+        JOIN "order" o ON o.car_configuration_id = c.id
+        WHERE c.car_model = m.name) AS order_count
+FROM car_model m WHERE m.name = $1
 `
 
-func (q *Queries) GetCarModel(ctx context.Context, name string) (CarModel, error) {
+type GetCarModelRow struct {
+	Name       string
+	Year       int32
+	OrderCount int64
+}
+
+func (q *Queries) GetCarModel(ctx context.Context, name string) (GetCarModelRow, error) {
 	row := q.db.QueryRow(ctx, getCarModel, name)
-	var i CarModel
-	err := row.Scan(&i.Name, &i.Year)
+	var i GetCarModelRow
+	err := row.Scan(&i.Name, &i.Year, &i.OrderCount)
 	return i, err
 }
 
 const listCarConfigurations = `-- name: ListCarConfigurations :many
-SELECT id, name, car_model, price::TEXT AS price, delivery_days, description
-FROM car_configuration ORDER BY car_model, name, id
+SELECT c.id, c.name, c.car_model, c.price::TEXT AS price, c.delivery_days, c.description,
+       (SELECT COUNT(*) FROM "order" o WHERE o.car_configuration_id = c.id) AS order_count
+FROM car_configuration c ORDER BY c.car_model, c.name, c.id
 `
 
 type ListCarConfigurationsRow struct {
@@ -125,6 +140,7 @@ type ListCarConfigurationsRow struct {
 	Price        string
 	DeliveryDays int32
 	Description  *string
+	OrderCount   int64
 }
 
 // Операции со списком доступных комплектаций.
@@ -144,6 +160,7 @@ func (q *Queries) ListCarConfigurations(ctx context.Context) ([]ListCarConfigura
 			&i.Price,
 			&i.DeliveryDays,
 			&i.Description,
+			&i.OrderCount,
 		); err != nil {
 			return nil, err
 		}
@@ -156,20 +173,31 @@ func (q *Queries) ListCarConfigurations(ctx context.Context) ([]ListCarConfigura
 }
 
 const listCarModels = `-- name: ListCarModels :many
-SELECT name, year FROM car_model ORDER BY name
+SELECT m.name, m.year,
+       (SELECT COUNT(*)
+        FROM car_configuration c
+        JOIN "order" o ON o.car_configuration_id = c.id
+        WHERE c.car_model = m.name) AS order_count
+FROM car_model m ORDER BY m.name
 `
 
+type ListCarModelsRow struct {
+	Name       string
+	Year       int32
+	OrderCount int64
+}
+
 // Операции со списком моделей автомобилей.
-func (q *Queries) ListCarModels(ctx context.Context) ([]CarModel, error) {
+func (q *Queries) ListCarModels(ctx context.Context) ([]ListCarModelsRow, error) {
 	rows, err := q.db.Query(ctx, listCarModels)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CarModel
+	var items []ListCarModelsRow
 	for rows.Next() {
-		var i CarModel
-		if err := rows.Scan(&i.Name, &i.Year); err != nil {
+		var i ListCarModelsRow
+		if err := rows.Scan(&i.Name, &i.Year, &i.OrderCount); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

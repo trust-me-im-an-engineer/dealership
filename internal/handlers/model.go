@@ -14,13 +14,14 @@ import (
 )
 
 type modelFormPage struct {
-	Action  string
-	FormID  string
-	OldName string
-	Name    string
-	Year    string
-	Error   string
-	IsEdit  bool
+	Action     string
+	FormID     string
+	OldName    string
+	Name       string
+	Year       string
+	OrderCount int64
+	Error      string
+	IsEdit     bool
 }
 
 var tmplModelRow = templ.Parse("model-row.html")
@@ -50,6 +51,7 @@ func (h *Handlers) GetEditModel(w http.ResponseWriter, r *http.Request) {
 		Action: "/admin/models/update", IsEdit: true,
 		FormID:  "model-edit-" + url.QueryEscape(model.Name),
 		OldName: model.Name, Name: model.Name, Year: strconv.FormatInt(int64(model.Year), 10),
+		OrderCount: model.OrderCount,
 	}
 	h.renderFragment(w, tmplModelEditorRow, "model-editor-row", page, http.StatusOK)
 }

@@ -1,66 +1,82 @@
-{{define "title"}}Автосалон{{end}} {{define "main"}}
-<nav aria-label="Учетная запись">
-  <ul>
-    <li>
-      <h1>Здравствуйте, {{.Username}}</h1>
-      <p>
-        Вы вошли в систему. Роль: {{if eq .Role
-        "admin"}}администратор{{else}}продавец{{end}}.
-      </p>
-    </li>
-  </ul>
-  <ul>
-    <li>
-      <form method="post" action="/logout">
-        <button>Выйти</button>
-      </form>
-    </li>
-  </ul>
-</nav>
+{{ define "title" }}Автосалон{{ end }}
+{{ define "main" }}
+  <nav aria-label="Учетная запись">
+    <ul>
+      <li>
+        <h1>Здравствуйте, {{ .Username }}</h1>
+        <p>
+          Вы вошли в систему. Роль:
+          {{ if eq .Role
+            "admin"
+          }}
+            администратор
+          {{ else }}
+            продавец
+          {{ end }}.
+        </p>
+      </li>
+    </ul>
+    <ul>
+      <li>
+        <form method="post" action="/logout">
+          <button>Выйти</button>
+        </form>
+      </li>
+    </ul>
+  </nav>
 
-{{if eq .Role "admin"}}
-<section>
-  <h2>Модели автомобилей</h2>
-  <table style="width: auto">
-    <thead>
-      <tr>
-        <th>Модель</th>
-        <th>Год</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {{range .Models}} {{template "model-row" .}} {{else}}
-      <tr>
-        <td colspan="4">Моделей пока нет.</td>
-      </tr>
-      {{end}} {{template "model-editor-row" .NewModel}}
-    </tbody>
-  </table>
-</section>
+  {{ if eq .Role "admin" }}
+    <section>
+      <h2>Модели автомобилей</h2>
+      <table style="width: auto">
+        <thead>
+          <tr>
+            <th>Модель</th>
+            <th>Год</th>
+            <th>Заказы</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .Models }}
+            {{ template "model-row" . }}
+          {{ else }}
+            <tr>
+              <td colspan="5">Моделей пока нет.</td>
+            </tr>
+          {{ end }}
+          {{ template "model-editor-row" .NewModel }}
+        </tbody>
+      </table>
+    </section>
 
-<section>
-  <h2>Комплектации</h2>
-  <table style="width: auto; margin-inline: auto">
-    <thead>
-      <tr>
-        <th>Модель</th>
-        <th>Комплектация</th>
-        <th>Цена, ₽</th>
-        <th>Поставка, дней</th>
-        <th>Описание</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {{range .Configurations}} {{template "configuration-row" .}} {{else}}
-      <tr>
-        <td colspan="7">Комплектаций пока нет.</td>
-      </tr>
-      {{end}} {{template "configuration-editor-row" .NewConfiguration}}
-    </tbody>
-  </table>
-</section>
-{{end}} {{end}}
+    <section>
+      <h2>Комплектации</h2>
+      <table style="width: auto; margin-inline: auto">
+        <thead>
+          <tr>
+            <th>Модель</th>
+            <th>Комплектация</th>
+            <th>Цена, ₽</th>
+            <th>Поставка, дней</th>
+            <th>Описание</th>
+            <th>Заказы</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .Configurations }}
+            {{ template "configuration-row" . }}
+          {{ else }}
+            <tr>
+              <td colspan="8">Комплектаций пока нет.</td>
+            </tr>
+          {{ end }}
+          {{ template "configuration-editor-row" .NewConfiguration }}
+        </tbody>
+      </table>
+    </section>
+  {{ end }}
+{{ end }}

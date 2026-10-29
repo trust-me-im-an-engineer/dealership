@@ -42,10 +42,12 @@ db-seed:
 # Форматировать код
 fmt:
     golangci-lint fmt ./...
+    npx --no-install prettier --write internal/templ/templates
 
 # Проверить стиль кода
 lint:
     golangci-lint run ./...
+    npx --no-install prettier --check internal/templ/templates
 
 # Провести тесты кода
 test:

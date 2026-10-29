@@ -1,85 +1,95 @@
-{{define "configuration-editor-row"}}
-<tr>
-  <td>
-    <select
-      form="{{.FormID}}"
-      name="car_model"
-      aria-label="Модель автомобиля"
-      required
-    >
-      {{range .Models}}
-      <option value="{{.Name}}" {{if eq .Name $.CarModel}}selected{{end}}>
-        {{.Name}} ({{.Year}})
-      </option>
-      {{else}}
-      <option value="" selected disabled>Сначала добавьте модель</option>
-      {{end}}
-    </select>
-  </td>
-  <td>
-    <input
-      form="{{.FormID}}"
-      name="name"
-      aria-label="Название комплектации"
-      value="{{.Name}}"
-      required
-    />
-  </td>
-  <td>
-    <input
-      form="{{.FormID}}"
-      name="price"
-      aria-label="Цена, ₽"
-      type="number"
-      min="0.01"
-      max="9999999999.99"
-      step="0.01"
-      value="{{.Price}}"
-      required
-    />
-  </td>
-  <td>
-    <input
-      form="{{.FormID}}"
-      name="delivery_days"
-      aria-label="Срок поставки, дней"
-      type="number"
-      min="0"
-      value="{{.DeliveryDays}}"
-      required
-    />
-  </td>
-  <td>
-    <textarea form="{{.FormID}}" name="description" aria-label="Описание">
-{{.Description}}</textarea
-    >
-  </td>
-  <td>
-    <form
-      id="{{.FormID}}"
-      method="post"
-      action="{{.Action}}"
-      hx-post="{{.Action}}"
-      hx-swap="none"
-    >
-      {{if .IsEdit}}<input type="hidden" name="id" value="{{.ID}}" />{{end}}
-      <button {{if not .Models}}disabled{{end}}>
-        {{if .IsEdit}}Сохранить{{else}}Добавить{{end}}
-      </button>
-    </form>
-  </td>
-  <td>
-    {{if .IsEdit}}
-    <button
-      type="button"
-      class="secondary"
-      hx-get="/admin/configurations/row?id={{.ID}}"
-      hx-target="closest tr"
-      hx-swap="outerHTML"
-    >
-      Отмена
-    </button>
-    {{end}}
-  </td>
-</tr>
-{{end}}
+{{ define "configuration-editor-row" }}
+  <tr>
+    <td>
+      <select
+        form="{{ .FormID }}"
+        name="car_model"
+        aria-label="Модель автомобиля"
+        required
+      >
+        {{ range .Models }}
+          <option
+            value="{{ .Name }}"
+            {{ if eq .Name $.CarModel }}selected{{ end }}
+          >
+            {{ .Name }} ({{ .Year }})
+          </option>
+        {{ else }}
+          <option value="" selected disabled>Сначала добавьте модель</option>
+        {{ end }}
+      </select>
+    </td>
+    <td>
+      <input
+        form="{{ .FormID }}"
+        name="name"
+        aria-label="Название комплектации"
+        value="{{ .Name }}"
+        required
+      />
+    </td>
+    <td>
+      <input
+        form="{{ .FormID }}"
+        name="price"
+        aria-label="Цена, ₽"
+        type="number"
+        min="0.01"
+        max="9999999999.99"
+        step="0.01"
+        value="{{ .Price }}"
+        required
+      />
+    </td>
+    <td>
+      <input
+        form="{{ .FormID }}"
+        name="delivery_days"
+        aria-label="Срок поставки, дней"
+        type="number"
+        min="0"
+        value="{{ .DeliveryDays }}"
+        required
+      />
+    </td>
+    <td>
+      <textarea form="{{ .FormID }}" name="description" aria-label="Описание">
+{{ .Description }}</textarea>
+    </td>
+    <td>{{ if .IsEdit }}{{ .OrderCount }}{{ else }}{{ end }}</td>
+    <td>
+      <form
+        id="{{ .FormID }}"
+        method="post"
+        action="{{ .Action }}"
+        hx-post="{{ .Action }}"
+        hx-swap="none"
+      >
+        {{ if .IsEdit }}
+          <input type="hidden" name="id" value="{{ .ID }}" />
+        {{ end }}
+        <button {{ if not .Models }}disabled{{ end }}>
+          {{ if .IsEdit }}
+            Сохранить
+          {{ else }}
+            Добавить
+          {{ end }}
+        </button>
+      </form>
+    </td>
+    <td>
+      {{ if .IsEdit }}
+        <form
+          method="get"
+          action="/admin/configurations/row"
+          hx-get="/admin/configurations/row"
+          hx-target="closest tr"
+          hx-swap="outerHTML"
+        >
+          <input type="hidden" name="id" value="{{ .ID }}" />
+          <button class="secondary">Отмена</button>
+        </form>
+      {{ end }}
+    </td>
+  </tr>
+{{ end }}

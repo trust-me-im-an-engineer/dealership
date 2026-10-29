@@ -26,9 +26,10 @@ type configurationFormPage struct {
 	Price        string
 	DeliveryDays string
 	Description  string
+	OrderCount   int64
 	Error        string
 	IsEdit       bool
-	Models       []db.CarModel
+	Models       []db.ListCarModelsRow
 }
 
 var tmplConfigurationRow = templ.Parse("configuration-row.html")
@@ -59,6 +60,7 @@ func (h *Handlers) GetEditConfiguration(w http.ResponseWriter, r *http.Request) 
 		FormID: "configuration-edit-" + strconv.FormatInt(configuration.ID, 10),
 		ID:     configuration.ID, Name: configuration.Name, CarModel: configuration.CarModel,
 		Price: configuration.Price, DeliveryDays: strconv.FormatInt(int64(configuration.DeliveryDays), 10),
+		OrderCount: configuration.OrderCount,
 	}
 	if configuration.Description != nil {
 		page.Description = *configuration.Description
