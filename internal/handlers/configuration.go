@@ -145,8 +145,11 @@ func parseConfigurationForm(r *http.Request) (db.CreateCarConfigurationParams, e
 	}
 
 	params := db.CreateCarConfigurationParams{
-		Name: name, CarModel: carModel, Price: price,
-		DeliveryDays: int32(days), Description: description,
+		Name:         name,
+		CarModel:     carModel,
+		Price:        price,
+		DeliveryDays: int32(days),
+		Description:  description,
 	}
 	return params, nil
 }
@@ -185,8 +188,12 @@ func (h *Handlers) PostUpdateConfiguration(w http.ResponseWriter, r *http.Reques
 	}
 
 	params := db.UpdateCarConfigurationParams{
-		ID: id, Name: input.Name, CarModel: input.CarModel,
-		Price: input.Price, DeliveryDays: input.DeliveryDays, Description: input.Description,
+		ID:           id,
+		Name:         input.Name,
+		CarModel:     input.CarModel,
+		Price:        input.Price,
+		DeliveryDays: input.DeliveryDays,
+		Description:  input.Description,
 	}
 	rows, err := h.queries.UpdateCarConfiguration(r.Context(), params)
 	if postgresError(err, "23503") {
