@@ -26,12 +26,12 @@ func New(sessions *scs.SessionManager, queries *db.Queries) *Handlers {
 }
 
 // render сначала собирает страницу в буфере, чтобы при ошибке шаблона не отправить часть ответа.
-func (h *Handlers) render(w http.ResponseWriter, page *template.Template, data any, status int) {
+func render(w http.ResponseWriter, page *template.Template, data any, status int) {
 	renderTemplate(w, page, "base.html", data, status)
 }
 
 // renderFragment отправляет только строку таблицы для обновления через htmx.
-func (h *Handlers) renderFragment(w http.ResponseWriter, page *template.Template,
+func renderFragment(w http.ResponseWriter, page *template.Template,
 	name string, data any, status int,
 ) {
 	renderTemplate(w, page, name, data, status)

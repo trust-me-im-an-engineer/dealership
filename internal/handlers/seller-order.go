@@ -93,7 +93,7 @@ func (h *Handlers) GetEditSellerOrder(w http.ResponseWriter, r *http.Request) {
 		GetSellerOrderRow: order,
 		Configurations:    configurations,
 	}
-	h.renderFragment(w, tmplSellerOrderEditorRow, "seller-order-editor-row", page, http.StatusOK)
+	renderFragment(w, tmplSellerOrderEditorRow, "seller-order-editor-row", page, http.StatusOK)
 }
 
 // GetSellerOrderRow возвращает обычную строку после отмены редактирования.
@@ -109,7 +109,7 @@ func (h *Handlers) GetSellerOrderRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.renderFragment(w, tmplSellerOrderRow, "seller-order-row", order, http.StatusOK)
+	renderFragment(w, tmplSellerOrderRow, "seller-order-row", order, http.StatusOK)
 }
 
 // parseSellerOrderForm проверяет изменяемые поля заказа и возвращает параметры обновления.

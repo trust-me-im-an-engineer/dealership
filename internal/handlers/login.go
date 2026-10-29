@@ -27,7 +27,7 @@ func (h *Handlers) GetLogin(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
-	h.render(w, tmplLogin, loginPage{}, http.StatusOK)
+	render(w, tmplLogin, loginPage{}, http.StatusOK)
 }
 
 // PostLogin проверяет пароль и создаёт сессию пользователя.
@@ -44,7 +44,7 @@ func (h *Handlers) PostLogin(w http.ResponseWriter, r *http.Request) {
 	user, err := h.queries.GetUserByUsername(r.Context(), username)
 	if errors.Is(err, pgx.ErrNoRows) ||
 		err == nil && bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
-		h.render(
+		render(
 			w,
 			tmplLogin,
 			loginPage{Error: "Неверное имя пользователя или пароль"},

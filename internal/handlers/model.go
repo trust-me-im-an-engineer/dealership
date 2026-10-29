@@ -64,7 +64,7 @@ func (h *Handlers) GetEditModel(w http.ResponseWriter, r *http.Request) {
 		OldName: model.Name,
 		Year:    strconv.FormatInt(int64(model.Year), 10),
 	}
-	h.renderFragment(w, tmplModelEditorRow, "model-editor-row", page, http.StatusOK)
+	renderFragment(w, tmplModelEditorRow, "model-editor-row", page, http.StatusOK)
 }
 
 // GetModelRow возвращает обычную строку таблицы после отмены редактирования.
@@ -84,7 +84,7 @@ func (h *Handlers) GetModelRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.renderFragment(w, tmplModelRow, "model-row", model, http.StatusOK)
+	renderFragment(w, tmplModelRow, "model-row", model, http.StatusOK)
 }
 
 // parseModelForm проверяет поля модели и возвращает параметры запроса либо ошибку.

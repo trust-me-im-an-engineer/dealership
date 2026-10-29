@@ -40,5 +40,5 @@ func (h *Handlers) sellerHome(w http.ResponseWriter, r *http.Request, user sessi
 		Orders:   orders,
 	}
 
-	h.render(w, tmplSellerHome, data, http.StatusOK)
+	render(w, tmplSellerHome, data, http.StatusOK)
 }

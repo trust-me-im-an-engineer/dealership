@@ -58,5 +58,5 @@ func (h *Handlers) adminHome(w http.ResponseWriter, r *http.Request, user sessio
 		},
 	}
 
-	h.render(w, tmplAdminHome, data, http.StatusOK)
+	render(w, tmplAdminHome, data, http.StatusOK)
 }

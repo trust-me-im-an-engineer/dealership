@@ -87,7 +87,7 @@ func (h *Handlers) GetEditConfiguration(w http.ResponseWriter, r *http.Request) 
 	}
 
 	page.Models = models
-	h.renderFragment(w, tmplConfigurationEditorRow, "configuration-editor-row", page, http.StatusOK)
+	renderFragment(w, tmplConfigurationEditorRow, "configuration-editor-row", page, http.StatusOK)
 }
 
 // GetConfigurationRow возвращает обычную строку таблицы после отмены редактирования.
@@ -113,7 +113,7 @@ func (h *Handlers) GetConfigurationRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.renderFragment(w, tmplConfigurationRow, "configuration-row", configuration, http.StatusOK)
+	renderFragment(w, tmplConfigurationRow, "configuration-row", configuration, http.StatusOK)
 }
 
 // parseConfigurationForm проверяет общие поля комплектации и возвращает параметры запроса.
