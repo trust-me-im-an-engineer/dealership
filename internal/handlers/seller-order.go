@@ -42,17 +42,11 @@ func sellerOrderID(value string) (int64, error) {
 	return id, nil
 }
 
-// GetEditSellerOrder возвращает продавцу строку редактирования его заказа.
-func (h *Handlers) GetEditSellerOrder(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("HX-Request") != "true" {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
+// getSellerOrder находит заказ по номеру и продавцу из текущей сессии.
+func (h *Handlers) getSellerOrder(r *http.Request) (db.GetSellerOrderRow, error) {
 	id, err := sellerOrderID(r.URL.Query().Get("id"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return db.GetSellerOrderRow{}, err
 	}
 
 	user := h.sessions.Get(r.Context(), session.UserKey).(session.User)
@@ -60,13 +54,32 @@ func (h *Handlers) GetEditSellerOrder(w http.ResponseWriter, r *http.Request) {
 		ID:       id,
 		SellerID: user.ID,
 	}
-	order, err := h.queries.GetSellerOrder(r.Context(), params)
-	if errors.Is(err, pgx.ErrNoRows) {
+	return h.queries.GetSellerOrder(r.Context(), params)
+}
+
+// respondSellerOrderError отправляет ответ по ошибке чтения заказа.
+func respondSellerOrderError(w http.ResponseWriter, r *http.Request, err error) {
+	var formErr sellerOrderFormError
+	switch {
+	case errors.As(err, &formErr):
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	case errors.Is(err, pgx.ErrNoRows):
 		http.NotFound(w, r)
+	default:
+		serverError(w, "failed to get seller order", err)
+	}
+}
+
+// GetEditSellerOrder возвращает продавцу строку редактирования его заказа.
+func (h *Handlers) GetEditSellerOrder(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("HX-Request") != "true" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
+
+	order, err := h.getSellerOrder(r)
 	if err != nil {
-		serverError(w, "failed to get seller order", err)
+		respondSellerOrderError(w, r, err)
 		return
 	}
 
@@ -90,24 +103,9 @@ func (h *Handlers) GetSellerOrderRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := sellerOrderID(r.URL.Query().Get("id"))
+	order, err := h.getSellerOrder(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	user := h.sessions.Get(r.Context(), session.UserKey).(session.User)
-	params := db.GetSellerOrderParams{
-		ID:       id,
-		SellerID: user.ID,
-	}
-	order, err := h.queries.GetSellerOrder(r.Context(), params)
-	if errors.Is(err, pgx.ErrNoRows) {
-		http.NotFound(w, r)
-		return
-	}
-	if err != nil {
-		serverError(w, "failed to get seller order", err)
+		respondSellerOrderError(w, r, err)
 		return
 	}
 

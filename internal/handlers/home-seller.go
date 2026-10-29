@@ -28,7 +28,7 @@ func (h *Handlers) sellerHome(w http.ResponseWriter, r *http.Request, user sessi
 		serverError(w, "failed to load seller home page", err)
 		return
 	}
-	
+
 	orders, err := h.queries.ListSellerOrders(r.Context(), user.ID)
 	if err != nil {
 		serverError(w, "failed to list seller orders", err)
