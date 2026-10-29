@@ -15,14 +15,10 @@ import (
 
 // modelFormPage хранит значения строки добавления или редактирования модели.
 type modelFormPage struct {
-	Action     string
-	FormID     string
-	OldName    string
-	Name       string
-	Year       string
-	OrderCount int64
-	Error      string
-	IsEdit     bool
+	catalogFormPage
+	OldName string
+	Year    string
+	Error   string
 }
 
 // Шаблоны обычной и редактируемой строки модели разбираются при запуске.
@@ -53,13 +49,15 @@ func (h *Handlers) GetEditModel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	page := modelFormPage{
-		Action:     "/admin/models/update",
-		IsEdit:     true,
-		FormID:     "model-edit-" + url.QueryEscape(model.Name),
-		OldName:    model.Name,
-		Name:       model.Name,
-		Year:       strconv.FormatInt(int64(model.Year), 10),
-		OrderCount: model.OrderCount,
+		catalogFormPage: catalogFormPage{
+			Action:     "/admin/models/update",
+			FormID:     "model-edit-" + url.QueryEscape(model.Name),
+			Name:       model.Name,
+			OrderCount: model.OrderCount,
+			IsEdit:     true,
+		},
+		OldName: model.Name,
+		Year:    strconv.FormatInt(int64(model.Year), 10),
 	}
 	h.renderFragment(w, tmplModelEditorRow, "model-editor-row", page, http.StatusOK)
 }

@@ -35,12 +35,16 @@ func (h *Handlers) adminHome(w http.ResponseWriter, r *http.Request, user sessio
 			RoleName: "администратор",
 		},
 		NewModel: modelFormPage{
-			Action: "/admin/models",
-			FormID: "model-create",
+			catalogFormPage: catalogFormPage{
+				Action: "/admin/models",
+				FormID: "model-create",
+			},
 		},
 		NewConfiguration: configurationFormPage{
-			Action: "/admin/configurations",
-			FormID: "configuration-create",
+			catalogFormPage: catalogFormPage{
+				Action: "/admin/configurations",
+				FormID: "configuration-create",
+			},
 		},
 	}
 

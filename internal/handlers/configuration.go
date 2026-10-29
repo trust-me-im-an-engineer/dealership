@@ -25,16 +25,12 @@ func (e configurationFormError) Error() string { return string(e) }
 
 // configurationFormPage хранит значения строки добавления или редактирования комплектации.
 type configurationFormPage struct {
-	Action       string
-	FormID       string
+	catalogFormPage
 	ID           int64
-	Name         string
 	CarModel     string
 	Price        string
 	DeliveryDays string
 	Description  string
-	OrderCount   int64
-	IsEdit       bool
 	Models       []db.ListCarModelsRow
 }
 
@@ -68,15 +64,17 @@ func (h *Handlers) GetEditConfiguration(w http.ResponseWriter, r *http.Request) 
 	}
 
 	page := configurationFormPage{
-		Action:       "/admin/configurations/update",
-		IsEdit:       true,
-		FormID:       "configuration-edit-" + strconv.FormatInt(configuration.ID, 10),
+		catalogFormPage: catalogFormPage{
+			Action:     "/admin/configurations/update",
+			FormID:     "configuration-edit-" + strconv.FormatInt(configuration.ID, 10),
+			Name:       configuration.Name,
+			OrderCount: configuration.OrderCount,
+			IsEdit:     true,
+		},
 		ID:           configuration.ID,
-		Name:         configuration.Name,
 		CarModel:     configuration.CarModel,
 		Price:        configuration.Price,
 		DeliveryDays: strconv.FormatInt(int64(configuration.DeliveryDays), 10),
-		OrderCount:   configuration.OrderCount,
 	}
 	if configuration.Description != nil {
 		page.Description = *configuration.Description
