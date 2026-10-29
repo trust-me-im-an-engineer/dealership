@@ -72,5 +72,45 @@
         </tbody>
       </table>
     </section>
+
+    <section>
+      <h2>Заказы</h2>
+      <table style="width: auto">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Дата заказа</th>
+            <th>Модель</th>
+            <th>Комплектация</th>
+            <th>Покупатель</th>
+            <th>Продавец</th>
+            <th>Ожидаемая доставка</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .Orders }}
+            <tr>
+              <td>{{ .ID }}</td>
+              <td>{{ .OrderedAt }}</td>
+              <td>{{ .CarModel }}</td>
+              <td>{{ .ConfigurationName }}</td>
+              <td>
+                {{ .BuyerName }}<br />
+                {{ .BuyerPhone }}
+                {{ if .BuyerEmail }}<br />{{ .BuyerEmail }}{{ end }}
+              </td>
+              <td>{{ .Seller }}</td>
+              <td>{{ .ExpectedDeliveryOn }}</td>
+              <td>{{ .Status }}</td>
+            </tr>
+          {{ else }}
+            <tr>
+              <td colspan="8">Заказов пока нет.</td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </section>
   {{ end }}
 {{ end }}

@@ -14,6 +14,7 @@ type homePage struct {
 	Role             string
 	Models           []db.ListCarModelsRow
 	Configurations   []db.ListCarConfigurationsRow
+	Orders           []db.ListOrdersRow
 	NewModel         modelFormPage
 	NewConfiguration configurationFormPage
 }
@@ -50,6 +51,15 @@ func (h *Handlers) Home(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			slog.Error(
 				"failed to list car configurations",
+				slog.Any("error", err),
+			)
+			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+			return
+		}
+		data.Orders, err = h.queries.ListOrders(r.Context())
+		if err != nil {
+			slog.Error(
+				"failed to list orders",
 				slog.Any("error", err),
 			)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
