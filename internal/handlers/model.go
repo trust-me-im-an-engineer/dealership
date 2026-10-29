@@ -18,7 +18,6 @@ type modelFormPage struct {
 	catalogFormPage
 	OldName string
 	Year    string
-	Error   string
 }
 
 // modelFormError содержит текст ошибки формы в исходном регистре.
