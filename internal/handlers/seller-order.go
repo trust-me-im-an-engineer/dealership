@@ -112,33 +112,21 @@ func (h *Handlers) GetSellerOrderRow(w http.ResponseWriter, r *http.Request) {
 	renderFragment(w, tmplSellerOrderRow, "seller-order-row", order, http.StatusOK)
 }
 
-// parseSellerOrderForm проверяет изменяемые поля заказа и возвращает параметры обновления.
-func parseSellerOrderForm(r *http.Request) (db.UpdateSellerOrderParams, error) {
+// parseSellerOrderForm проверяет общие поля создания и редактирования заказа.
+func parseSellerOrderForm(r *http.Request) (db.CreateSellerOrderParams, error) {
 	if err := r.ParseForm(); err != nil {
-		return db.UpdateSellerOrderParams{}, sellerOrderFormError("Некорректная форма")
+		return db.CreateSellerOrderParams{}, sellerOrderFormError("Некорректная форма")
 	}
 
 	configurationID, err := strconv.ParseInt(r.PostFormValue("car_configuration_id"), 10, 64)
 	if err != nil || configurationID < 1 {
-		return db.UpdateSellerOrderParams{}, sellerOrderFormError("Выберите комплектацию")
+		return db.CreateSellerOrderParams{}, sellerOrderFormError("Выберите комплектацию")
 	}
 
 	buyerName := strings.TrimSpace(r.PostFormValue("buyer_name"))
 	buyerPhone := strings.TrimSpace(r.PostFormValue("buyer_phone"))
 	if buyerName == "" || buyerPhone == "" {
-		return db.UpdateSellerOrderParams{}, sellerOrderFormError("Укажите имя и телефон покупателя")
-	}
-
-	deliveryDate, err := time.Parse("2006-01-02", r.PostFormValue("expected_delivery_on"))
-	if err != nil {
-		return db.UpdateSellerOrderParams{}, sellerOrderFormError("Укажите корректную дату доставки")
-	}
-
-	status := db.OrderStatus(r.PostFormValue("status"))
-	switch status {
-	case db.OrderStatusPlaced, db.OrderStatusDelivered, db.OrderStatusCancelled:
-	default:
-		return db.UpdateSellerOrderParams{}, sellerOrderFormError("Выберите статус заказа")
+		return db.CreateSellerOrderParams{}, sellerOrderFormError("Укажите имя и телефон покупателя")
 	}
 
 	var buyerEmail *string
@@ -146,22 +134,57 @@ func parseSellerOrderForm(r *http.Request) (db.UpdateSellerOrderParams, error) {
 		buyerEmail = &email
 	}
 
-	params := db.UpdateSellerOrderParams{
+	params := db.CreateSellerOrderParams{
 		CarConfigurationID: configurationID,
 		BuyerName:          buyerName,
 		BuyerPhone:         buyerPhone,
 		BuyerEmail:         buyerEmail,
-		ExpectedDeliveryOn: pgtype.Date{Time: deliveryDate, Valid: true},
-		Status:             status,
 	}
 	return params, nil
 }
 
-// PostUpdateSellerOrder сохраняет изменения только в заказе текущего продавца.
-func (h *Handlers) PostUpdateSellerOrder(w http.ResponseWriter, r *http.Request) {
+// PostSellerOrder создаёт заказ от имени продавца из текущей сессии.
+func (h *Handlers) PostSellerOrder(w http.ResponseWriter, r *http.Request) {
 	params, err := parseSellerOrderForm(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user := h.sessions.Get(r.Context(), session.UserKey).(session.User)
+	params.SellerID = user.ID
+	rows, err := h.queries.CreateSellerOrder(r.Context(), params)
+	if err != nil {
+		serverError(w, "failed to create seller order", err)
+		return
+	}
+	if rows == 0 {
+		http.Error(w, "Выбранная комплектация не существует", http.StatusConflict)
+		return
+	}
+
+	mutationSuccess(w, r)
+}
+
+// PostUpdateSellerOrder сохраняет изменения только в заказе текущего продавца.
+func (h *Handlers) PostUpdateSellerOrder(w http.ResponseWriter, r *http.Request) {
+	input, err := parseSellerOrderForm(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	deliveryDate, err := time.Parse("2006-01-02", r.PostFormValue("expected_delivery_on"))
+	if err != nil {
+		http.Error(w, "Укажите корректную дату доставки", http.StatusBadRequest)
+		return
+	}
+
+	status := db.OrderStatus(r.PostFormValue("status"))
+	switch status {
+	case db.OrderStatusPlaced, db.OrderStatusDelivered, db.OrderStatusCancelled:
+	default:
+		http.Error(w, "Выберите статус заказа", http.StatusBadRequest)
 		return
 	}
 
@@ -172,8 +195,16 @@ func (h *Handlers) PostUpdateSellerOrder(w http.ResponseWriter, r *http.Request)
 	}
 
 	user := h.sessions.Get(r.Context(), session.UserKey).(session.User)
-	params.ID = id
-	params.SellerID = user.ID
+	params := db.UpdateSellerOrderParams{
+		ID:                 id,
+		SellerID:           user.ID,
+		CarConfigurationID: input.CarConfigurationID,
+		BuyerName:          input.BuyerName,
+		BuyerPhone:         input.BuyerPhone,
+		BuyerEmail:         input.BuyerEmail,
+		ExpectedDeliveryOn: pgtype.Date{Time: deliveryDate, Valid: true},
+		Status:             status,
+	}
 	rows, err := h.queries.UpdateSellerOrder(r.Context(), params)
 	if postgresError(err, "23503") {
 		http.Error(w, "Выбранная комплектация не существует", http.StatusConflict)

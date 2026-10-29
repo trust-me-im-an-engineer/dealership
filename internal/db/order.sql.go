@@ -11,6 +11,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createSellerOrder = `-- name: CreateSellerOrder :execrows
+INSERT INTO "order" (car_configuration_id, seller_id, buyer_name, buyer_phone, buyer_email, expected_delivery_on)
+SELECT c.id, $1, $2, $3,
+       $4, CURRENT_DATE + c.delivery_days
+FROM car_configuration c
+WHERE c.id = $5
+`
+
+type CreateSellerOrderParams struct {
+	SellerID           int64
+	BuyerName          string
+	BuyerPhone         string
+	BuyerEmail         *string
+	CarConfigurationID int64
+}
+
+// Новый заказ оформляет текущий продавец; ожидаемая доставка учитывает срок комплектации.
+func (q *Queries) CreateSellerOrder(ctx context.Context, arg CreateSellerOrderParams) (int64, error) {
+	result, err := q.db.Exec(ctx, createSellerOrder,
+		arg.SellerID,
+		arg.BuyerName,
+		arg.BuyerPhone,
+		arg.BuyerEmail,
+		arg.CarConfigurationID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const getSellerOrder = `-- name: GetSellerOrder :one
 SELECT o.id,
        TO_CHAR(o.ordered_at, 'DD.MM.YYYY HH24:MI') AS ordered_at,

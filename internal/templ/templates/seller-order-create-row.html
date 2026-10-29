@@ -1,0 +1,61 @@
+{{ define "seller-order-create-row" }}
+  <tr>
+    <td></td>
+    <td></td>
+    <td colspan="2">
+      <select
+        form="order-create"
+        name="car_configuration_id"
+        aria-label="Комплектация"
+        required
+      >
+        {{ range .Configurations }}
+          <option value="{{ .ID }}">
+            {{ .CarModel }} — {{ .Name }} ({{ .DeliveryDays }} дн.)
+          </option>
+        {{ else }}
+          <option value="" disabled selected>Нет комплектаций</option>
+        {{ end }}
+      </select>
+    </td>
+    <td>
+      <input
+        form="order-create"
+        name="buyer_name"
+        aria-label="Имя покупателя"
+        placeholder="Имя покупателя"
+        required
+      />
+      <input
+        form="order-create"
+        name="buyer_phone"
+        aria-label="Телефон покупателя"
+        placeholder="Телефон"
+        required
+      />
+      <input
+        form="order-create"
+        name="buyer_email"
+        type="email"
+        aria-label="Электронная почта покупателя"
+        placeholder="Электронная почта"
+      />
+    </td>
+    <td title="Текущая дата + срок поставки выбранной комплектации">
+      Автоматически
+    </td>
+    <td>Оформлен</td>
+    <td>
+      <form
+        id="order-create"
+        method="post"
+        action="/seller/orders"
+        hx-post="/seller/orders"
+        hx-swap="none"
+      >
+        <button {{ if not .Configurations }}disabled{{ end }}>Добавить</button>
+      </form>
+    </td>
+    <td></td>
+  </tr>
+{{ end }}

@@ -19,6 +19,7 @@ var tmplSellerHome = templ.Parse(
 	"home/seller.html",
 	"home/header.html",
 	"seller-order-row.html",
+	"seller-order-create-row.html",
 )
 
 // sellerHome показывает главную страницу продавца.

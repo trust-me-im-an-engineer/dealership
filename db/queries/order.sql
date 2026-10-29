@@ -61,6 +61,14 @@ FROM "order" o
 JOIN car_configuration c ON c.id = o.car_configuration_id
 WHERE o.id = sqlc.arg(id) AND o.seller_id = sqlc.arg(seller_id);
 
+-- Новый заказ оформляет текущий продавец; ожидаемая доставка учитывает срок комплектации.
+-- name: CreateSellerOrder :execrows
+INSERT INTO "order" (car_configuration_id, seller_id, buyer_name, buyer_phone, buyer_email, expected_delivery_on)
+SELECT c.id, sqlc.arg(seller_id), sqlc.arg(buyer_name), sqlc.arg(buyer_phone),
+       sqlc.narg(buyer_email), CURRENT_DATE + c.delivery_days
+FROM car_configuration c
+WHERE c.id = sqlc.arg(car_configuration_id);
+
 -- Сохранять изменения может только продавец, оформивший заказ.
 -- name: UpdateSellerOrder :execrows
 UPDATE "order"

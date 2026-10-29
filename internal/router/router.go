@@ -35,7 +35,8 @@ func Route(h *handlers.Handlers, m *middleware.Middleware, sessions *scs.Session
 	mux.Handle("POST /admin/configurations/update", m.Admin(http.HandlerFunc(h.PostUpdateConfiguration)))
 	mux.Handle("POST /admin/configurations/delete", m.Admin(http.HandlerFunc(h.PostDeleteConfiguration)))
 
-	// Продавец может менять только собственные заказы.
+	// Продавец создаёт заказы от своего имени и меняет только собственные.
+	mux.Handle("POST /seller/orders", m.Seller(http.HandlerFunc(h.PostSellerOrder)))
 	mux.Handle("GET /seller/orders/edit", m.Seller(http.HandlerFunc(h.GetEditSellerOrder)))
 	mux.Handle("GET /seller/orders/row", m.Seller(http.HandlerFunc(h.GetSellerOrderRow)))
 	mux.Handle("POST /seller/orders/update", m.Seller(http.HandlerFunc(h.PostUpdateSellerOrder)))
