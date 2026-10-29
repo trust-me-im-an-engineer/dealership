@@ -21,6 +21,12 @@ type modelFormPage struct {
 	Error   string
 }
 
+// modelFormError содержит текст ошибки формы в исходном регистре.
+type modelFormError string
+
+// Error возвращает сообщение для пользователя.
+func (e modelFormError) Error() string { return string(e) }
+
 // Шаблоны обычной и редактируемой строки модели разбираются при запуске.
 var tmplModelRow = templ.Parse("model-row.html")
 var tmplModelEditorRow = templ.Parse("model-editor-row.html")
@@ -82,31 +88,30 @@ func (h *Handlers) GetModelRow(w http.ResponseWriter, r *http.Request) {
 	h.renderFragment(w, tmplModelRow, "model-row", model, http.StatusOK)
 }
 
-// parseModelForm проверяет поля модели и сохраняет текст ошибки для ответа пользователю.
-func parseModelForm(r *http.Request, page *modelFormPage) (db.CreateCarModelParams, bool) {
+// parseModelForm проверяет поля модели и возвращает параметры запроса либо ошибку.
+func parseModelForm(r *http.Request) (db.CreateCarModelParams, error) {
 	if err := r.ParseForm(); err != nil {
-		page.Error = "Некорректная форма"
-		return db.CreateCarModelParams{}, false
+		return db.CreateCarModelParams{}, modelFormError("Некорректная форма")
 	}
 
-	page.Name = strings.TrimSpace(r.PostFormValue("name"))
-	page.Year = r.PostFormValue("year")
-	page.OldName = r.PostFormValue("old_name")
-	year, err := strconv.ParseInt(page.Year, 10, 32)
-	if page.Name == "" || err != nil || year < 1 || year > 9999 {
-		page.Error = "Введите название и год от 1 до 9999"
-		return db.CreateCarModelParams{}, false
+	name := strings.TrimSpace(r.PostFormValue("name"))
+	year, err := strconv.ParseInt(r.PostFormValue("year"), 10, 32)
+	if name == "" || err != nil || year < 1 || year > 9999 {
+		return db.CreateCarModelParams{}, modelFormError("Введите название и год от 1 до 9999")
 	}
 
-	return db.CreateCarModelParams{Name: page.Name, Year: int32(year)}, true
+	params := db.CreateCarModelParams{
+		Name: name,
+		Year: int32(year),
+	}
+	return params, nil
 }
 
 // PostModel создаёт модель автомобиля.
 func (h *Handlers) PostModel(w http.ResponseWriter, r *http.Request) {
-	page := modelFormPage{}
-	input, ok := parseModelForm(r, &page)
-	if !ok {
-		http.Error(w, page.Error, http.StatusBadRequest)
+	input, err := parseModelForm(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -125,20 +130,20 @@ func (h *Handlers) PostModel(w http.ResponseWriter, r *http.Request) {
 
 // PostUpdateModel сохраняет новое название и год модели.
 func (h *Handlers) PostUpdateModel(w http.ResponseWriter, r *http.Request) {
-	page := modelFormPage{}
-	input, ok := parseModelForm(r, &page)
-	if !ok {
-		http.Error(w, page.Error, http.StatusBadRequest)
+	input, err := parseModelForm(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if page.OldName == "" {
+	oldName := r.PostFormValue("old_name")
+	if oldName == "" {
 		http.Error(w, "Укажите исходную модель", http.StatusBadRequest)
 		return
 	}
 
 	params := db.UpdateCarModelParams{
-		OldName: page.OldName,
+		OldName: oldName,
 		NewName: input.Name,
 		Year:    input.Year,
 	}
