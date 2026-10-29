@@ -11,11 +11,8 @@ import (
 
 // sellerHomePage содержит заказы продавца и каталог для просмотра.
 type sellerHomePage struct {
-	Username       string
-	RoleName       string
-	Orders         []db.ListSellerOrdersRow
-	Models         []db.ListCarModelsRow
-	Configurations []db.ListCarConfigurationsRow
+	homePage
+	Orders []db.ListSellerOrdersRow
 }
 
 // Шаблон страницы продавца разбирается один раз при запуске приложения.
@@ -28,8 +25,10 @@ var tmplSellerHome = templ.Parse(
 // sellerHome показывает главную страницу продавца.
 func (h *Handlers) sellerHome(w http.ResponseWriter, r *http.Request, user session.User) {
 	data := sellerHomePage{
-		Username: user.Username,
-		RoleName: "продавец",
+		homePage: homePage{
+			Username: user.Username,
+			RoleName: "продавец",
+		},
 	}
 
 	var err error

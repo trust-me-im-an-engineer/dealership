@@ -11,10 +11,7 @@ import (
 
 // adminHomePage содержит данные трёх таблиц и пустых форм для страницы администратора.
 type adminHomePage struct {
-	Username         string
-	RoleName         string
-	Models           []db.ListCarModelsRow
-	Configurations   []db.ListCarConfigurationsRow
+	homePage
 	Orders           []db.ListOrdersRow
 	NewModel         modelFormPage
 	NewConfiguration configurationFormPage
@@ -33,8 +30,10 @@ var tmplAdminHome = templ.Parse(
 // adminHome показывает администратору каталог и все заказы.
 func (h *Handlers) adminHome(w http.ResponseWriter, r *http.Request, user session.User) {
 	data := adminHomePage{
-		Username: user.Username,
-		RoleName: "администратор",
+		homePage: homePage{
+			Username: user.Username,
+			RoleName: "администратор",
+		},
 		NewModel: modelFormPage{
 			Action: "/admin/models",
 			FormID: "model-create",

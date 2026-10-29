@@ -3,8 +3,17 @@ package handlers
 import (
 	"net/http"
 
+	"dealership/internal/db"
 	"dealership/internal/session"
 )
+
+// homePage содержит общие данные главных страниц администратора и продавца.
+type homePage struct {
+	Username       string
+	RoleName       string
+	Models         []db.ListCarModelsRow
+	Configurations []db.ListCarConfigurationsRow
+}
 
 // Home направляет вошедшего пользователя на главную страницу его роли.
 func (h *Handlers) Home(w http.ResponseWriter, r *http.Request) {
