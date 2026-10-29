@@ -28,6 +28,7 @@ func (m *Middleware) Admin(next http.Handler) http.Handler {
 	return m.checkAccess(next, "admin")
 }
 
+// checkAccess требует сессию и, если роль задана, проверяет её перед вызовом обработчика.
 func (m *Middleware) checkAccess(next http.Handler, role string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, ok := m.sessions.Get(r.Context(), session.UserKey).(session.User)

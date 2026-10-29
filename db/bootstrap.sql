@@ -1,3 +1,4 @@
+-- psql получает имена и пароль из стандартных переменных окружения PostgreSQL.
 \getenv db_user PGUSER
 \getenv db_name PGDATABASE
 \getenv db_password PGPASSWORD

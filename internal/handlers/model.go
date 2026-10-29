@@ -13,6 +13,7 @@ import (
 	"dealership/internal/templ"
 )
 
+// modelFormPage хранит значения строки добавления или редактирования модели.
 type modelFormPage struct {
 	Action     string
 	FormID     string
@@ -24,6 +25,7 @@ type modelFormPage struct {
 	IsEdit     bool
 }
 
+// Шаблоны обычной и редактируемой строки модели разбираются при запуске.
 var tmplModelRow = templ.Parse("model-row.html")
 var tmplModelEditorRow = templ.Parse("model-editor-row.html")
 
@@ -82,6 +84,7 @@ func (h *Handlers) GetModelRow(w http.ResponseWriter, r *http.Request) {
 	h.renderFragment(w, tmplModelRow, "model-row", model, http.StatusOK)
 }
 
+// parseModelForm проверяет поля модели и сохраняет текст ошибки для ответа пользователю.
 func parseModelForm(r *http.Request, page *modelFormPage) (db.CreateCarModelParams, bool) {
 	if err := r.ParseForm(); err != nil {
 		page.Error = "Некорректная форма"

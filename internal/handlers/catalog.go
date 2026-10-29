@@ -8,11 +8,13 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// postgresError проверяет код ошибки PostgreSQL, например 23505 для UNIQUE или 23503 для FOREIGN KEY.
 func postgresError(err error, code string) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == code
 }
 
+// catalogServerError записывает внутреннюю ошибку в журнал и скрывает её детали от пользователя.
 func catalogServerError(w http.ResponseWriter, msg string, err error) {
 	slog.Error(
 		msg,

@@ -20,8 +20,10 @@ var pricePattern = regexp.MustCompile(`^\d{1,10}(\.\d{1,2})?$`)
 // configurationFormError содержит текст ошибки проверки для ответа пользователю.
 type configurationFormError string
 
+// Error возвращает сообщение проверки без изменения его регистра.
 func (e configurationFormError) Error() string { return string(e) }
 
+// configurationFormPage хранит значения строки добавления или редактирования комплектации.
 type configurationFormPage struct {
 	Action       string
 	FormID       string
@@ -36,6 +38,7 @@ type configurationFormPage struct {
 	Models       []db.ListCarModelsRow
 }
 
+// Шаблоны обычной и редактируемой строки комплектации разбираются при запуске.
 var (
 	tmplConfigurationRow       = templ.Parse("configuration-row.html")
 	tmplConfigurationEditorRow = templ.Parse("configuration-editor-row.html")

@@ -18,6 +18,7 @@ CREATE TABLE car_model
 );
 
 -- Доступные комплектации с ценой и сроком поставки.
+-- Удаление модели каскадно удаляет комплектации, если этому не мешают связанные заказы.
 CREATE TABLE car_configuration
 (
     id            BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

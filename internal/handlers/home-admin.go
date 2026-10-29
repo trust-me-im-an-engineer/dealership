@@ -9,6 +9,7 @@ import (
 	"dealership/internal/templ"
 )
 
+// adminHomePage содержит данные трёх таблиц и пустых форм для страницы администратора.
 type adminHomePage struct {
 	Username         string
 	RoleName         string

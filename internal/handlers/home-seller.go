@@ -7,6 +7,7 @@ import (
 	"dealership/internal/templ"
 )
 
+// sellerHomePage содержит данные для шапки страницы продавца.
 type sellerHomePage struct {
 	Username string
 	RoleName string

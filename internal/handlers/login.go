@@ -13,6 +13,7 @@ import (
 	"dealership/internal/templ"
 )
 
+// loginPage передаёт шаблону сообщение о неудачном входе.
 type loginPage struct {
 	Error string
 }

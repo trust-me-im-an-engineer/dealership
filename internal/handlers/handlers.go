@@ -37,6 +37,7 @@ func (h *Handlers) renderFragment(w http.ResponseWriter, page *template.Template
 	renderTemplate(w, page, name, data, status)
 }
 
+// renderTemplate отправляет ответ только после успешного выполнения всего шаблона.
 func renderTemplate(w http.ResponseWriter, page *template.Template, name string, data any, status int) {
 	var buf bytes.Buffer
 	if err := page.ExecuteTemplate(&buf, name, data); err != nil {
